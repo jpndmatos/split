@@ -119,3 +119,71 @@ describe('SQLite API', () => {
     ).toBe(409);
   });
 });
+
+it('edits an event expense atomically and keeps the legacy route compatible', async () => {
+  const created = await request('/events', 'POST', {
+    title: 'Workshop',
+    names: ['Ana', 'Bruno', 'Clara'],
+  });
+  expect(created.status).toBe(201);
+  const event = created.data;
+  const [a, b, c] = event.members.map((m: { id: string }) => m.id);
+  const body = {
+    title: 'Venue',
+    cents: 1001,
+    payerId: a,
+    memberIds: [a, b, c],
+    date: '2026-10-28',
+    category: 'Venue',
+  };
+  const added = await request(`/events/${event.id}/expenses`, 'POST', body);
+  const expense = added.data.expenses[0];
+  const edited = await request(`/events/${event.id}/expenses/${expense.id}`, 'PUT', {
+    ...body,
+    cents: 2002,
+    payerId: b,
+    memberIds: [b, c],
+  });
+  expect(edited.status).toBe(200);
+  expect(edited.data.expenses).toHaveLength(1);
+  expect(edited.data.expenses[0].id).toBe(expense.id);
+  expect(edited.data.balances.map((m: { cents: number }) => m.cents)).toEqual([0, 1001, -1001]);
+  expect(
+    (
+      await request(`/events/${event.id}/expenses/${expense.id}`, 'PUT', {
+        ...body,
+        memberIds: ['unknown'],
+      })
+    ).status,
+  ).toBe(400);
+  const legacy = await request(`/trips/${event.id}`);
+  expect(legacy.data.expenses[0].cents).toBe(2002);
+  expect((await request(`/events/${event.id}/expenses/missing`, 'PUT', body)).status).toBe(404);
+});
+
+it('keeps existing cent allocations when only expense details change', async () => {
+  const created = await request('/events', 'POST', {
+    title: 'Dinner',
+    names: ['Ana', 'Bruno', 'Clara'],
+  });
+  const event = created.data;
+  const ids = event.members.map((m: { id: string }) => m.id);
+  const body = {
+    title: 'Dinner',
+    cents: 1001,
+    payerId: ids[0],
+    memberIds: ids,
+    date: '2026-10-28',
+    category: 'Food',
+  };
+  const added = await request(`/events/${event.id}/expenses`, 'POST', body);
+  const expense = added.data.expenses[0];
+  const edited = await request(`/events/${event.id}/expenses/${expense.id}`, 'PUT', {
+    ...body,
+    title: 'Dinner ingredients',
+    memberIds: [...ids].reverse(),
+  });
+  expect(edited.status).toBe(200);
+  expect(edited.data.expenses[0].splits).toEqual(expense.splits);
+  expect(edited.data.balances).toEqual(added.data.balances);
+});

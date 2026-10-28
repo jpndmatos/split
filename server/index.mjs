@@ -28,7 +28,7 @@ function transaction(fn) {
     throw e;
   }
 }
-function createTrip(title, names, subtitle = 'A good time, fairly shared.') {
+function createTrip(title, names, subtitle = 'Shared event costs') {
   const id = randomUUID();
   transaction(() => {
     db.prepare('INSERT INTO trips VALUES(?,?,?)').run(id, title, subtitle);
@@ -46,15 +46,16 @@ function state(id) {
     .all(id)
     .map((e) => ({
       ...e,
+      category: { Stay: 'Venue', Travel: 'Transport' }[e.category] || e.category,
       splits: db.prepare('SELECT memberId AS id,cents FROM splits WHERE expenseId=?').all(e.id),
     }));
   const payments = db.prepare('SELECT * FROM payments WHERE tripId=?').all(id);
   const net = balances(members, expenses, payments);
   return { ...trip, members, expenses, payments, balances: net, settlements: settlements(net) };
 }
-function addExpense(tripId, b) {
+function addExpense(tripId, b, expenseId) {
   const trip = state(tripId);
-  if (!trip) throw new Error('Trip not found.');
+  if (!trip) throw new Error('Event not found.');
   const ids = trip.members.map((m) => m.id);
   if (typeof b.title !== 'string' || !b.title.trim() || b.title.length > 100)
     throw new Error('Give the expense a short description.');
@@ -66,17 +67,30 @@ function addExpense(tripId, b) {
     !b.memberIds.length ||
     b.memberIds.some((id) => !ids.includes(id))
   )
-    throw new Error('Choose a payer and people in this trip.');
+    throw new Error('Choose a payer and people in this event.');
   if (
     !/^\d{4}-\d{2}-\d{2}$/.test(b.date) ||
     !Number.isFinite(Date.parse(b.date)) ||
     new Date(b.date).toISOString().slice(0, 10) !== b.date
   )
     throw new Error('Choose a valid date.');
-  const category = ['Food', 'Stay', 'Travel', 'Other'].includes(b.category) ? b.category : 'Other';
-  const shares = splitCents(b.cents, b.memberIds),
-    id = randomUUID();
+  const category = ['Food', 'Venue', 'Supplies', 'Transport', 'Other', 'Stay', 'Travel'].includes(
+    b.category,
+  )
+    ? { Stay: 'Venue', Travel: 'Transport' }[b.category] || b.category
+    : 'Other';
+  const previous = expenseId ? trip.expenses.find((e) => e.id === expenseId) : null;
+  const sameSplit =
+    previous &&
+    previous.cents === b.cents &&
+    previous.splits.length === b.memberIds.length &&
+    new Set(b.memberIds).size === previous.splits.length &&
+    b.memberIds.every((id) => previous.splits.some((share) => share.id === id));
+  const shares = sameSplit ? previous.splits : splitCents(b.cents, b.memberIds),
+    id = expenseId || randomUUID();
   transaction(() => {
+    if (expenseId)
+      db.prepare('DELETE FROM expenses WHERE id=? AND tripId=?').run(expenseId, tripId);
     db.prepare('INSERT INTO expenses VALUES(?,?,?,?,?,?,?)').run(
       id,
       tripId,
@@ -91,20 +105,62 @@ function addExpense(tripId, b) {
 }
 if (!db.prepare('SELECT id FROM trips LIMIT 1').get()) {
   const id = createTrip(
-    'A weekend in Porto',
+    'Birthday dinner',
     ['João', 'Inês', 'Miguel', 'Sofia'],
-    'Four friends. Two nights. One shared tab.',
+    'Dinner, venue and shared supplies',
   );
   const m = state(id).members.map((m) => m.id);
   for (const [title, cents, payer, date, category, memberIds] of [
-    ['Apartment by the river', 24000, m[0], '2026-10-23', 'Stay', m],
-    ['Train tickets', 6800, m[2], '2026-10-23', 'Travel', m],
-    ['Dinner at the little tasca', 8640, m[1], '2026-10-24', 'Food', m],
-    ['Coffee & pastéis', 1280, m[3], '2026-10-24', 'Food', m],
-    ['A very necessary taxi', 1460, m[0], '2026-10-25', 'Travel', [m[0], m[1], m[3]]],
+    ['Venue booking', 24000, m[0], '2026-10-23', 'Venue', m],
+    ['Shared transport', 6800, m[2], '2026-10-23', 'Transport', m],
+    ['Dinner ingredients', 8640, m[1], '2026-10-24', 'Food', m],
+    ['Drinks and snacks', 1280, m[3], '2026-10-24', 'Food', m],
+    ['Decorations', 1460, m[0], '2026-10-25', 'Supplies', [m[0], m[1], m[3]]],
   ])
     addExpense(id, { title, cents, payerId: payer, date, category, memberIds });
 }
+
+const starter = db
+  .prepare('SELECT * FROM trips WHERE title=? AND subtitle=?')
+  .get('A weekend in Porto', 'Four friends. Two nights. One shared tab.');
+if (starter) {
+  const rows = state(starter.id);
+  const expected = new Map([
+    ['Apartment by the river', 24000],
+    ['Train tickets', 6800],
+    ['Dinner at the little tasca', 8640],
+    ['Coffee & pastéis', 1280],
+    ['A very necessary taxi', 1460],
+  ]);
+  if (
+    !rows.payments.length &&
+    rows.expenses.length === 5 &&
+    rows.expenses.every((e) => expected.get(e.title) === e.cents)
+  ) {
+    transaction(() => {
+      db.prepare('UPDATE trips SET title=?,subtitle=? WHERE id=?').run(
+        'Birthday dinner',
+        'Dinner, venue and shared supplies',
+        starter.id,
+      );
+      const replacements = [
+        ['Venue booking', 'Venue', 'Apartment by the river'],
+        ['Shared transport', 'Transport', 'Train tickets'],
+        ['Dinner ingredients', 'Food', 'Dinner at the little tasca'],
+        ['Drinks and snacks', 'Food', 'Coffee & pastéis'],
+        ['Decorations', 'Supplies', 'A very necessary taxi'],
+      ];
+      for (const [title, category, old] of replacements)
+        db.prepare('UPDATE expenses SET title=?,category=? WHERE tripId=? AND title=?').run(
+          title,
+          category,
+          starter.id,
+          old,
+        );
+    });
+  }
+}
+
 const json = (res, status, value) => {
   res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
   res.end(JSON.stringify(value));
@@ -113,6 +169,7 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, 'http://localhost');
     const parts = url.pathname.split('/').filter(Boolean);
+    if (parts[1] === 'events') parts[1] = 'trips'; // Keep existing databases and API clients compatible.
     if (parts[0] !== 'api') {
       if (!['GET', 'HEAD'].includes(req.method))
         return json(res, 405, { error: 'Method not allowed.' });
@@ -176,7 +233,7 @@ const server = http.createServer(async (req, res) => {
           b.names.some((n) => typeof n !== 'string' || !n.trim() || n.length > 30) ||
           new Set(b.names.map((n) => n.trim().toLowerCase())).size !== b.names.length
         )
-          return json(res, 400, { error: 'Add a trip name and 2–12 different names.' });
+          return json(res, 400, { error: 'Add an event name and 2–12 different names.' });
         return json(
           res,
           201,
@@ -192,11 +249,17 @@ const server = http.createServer(async (req, res) => {
     const id = parts[2];
     if (parts[1] === 'trips' && id) {
       const trip = state(id);
-      if (!trip) return json(res, 404, { error: 'Trip not found.' });
+      if (!trip) return json(res, 404, { error: 'Event not found.' });
       if (parts.length === 3 && req.method === 'GET') return json(res, 200, trip);
       if (parts[3] === 'expenses' && parts.length === 4 && req.method === 'POST') {
         addExpense(id, b);
         return json(res, 201, state(id));
+      }
+      if (parts[3] === 'expenses' && parts.length === 5 && req.method === 'PUT') {
+        if (!trip.expenses.some((e) => e.id === parts[4]))
+          return json(res, 404, { error: 'Expense not found.' });
+        addExpense(id, b, parts[4]);
+        return json(res, 200, state(id));
       }
       if (parts[3] === 'expenses' && parts.length === 5 && req.method === 'DELETE') {
         const result = db.prepare('DELETE FROM expenses WHERE id=? AND tripId=?').run(parts[4], id);

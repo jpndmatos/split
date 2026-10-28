@@ -1,3 +1,5 @@
+import { expenseCsv } from './export';
+import { Pencil, Download } from 'lucide-react';
 import { filterExpenses } from './expenses';
 import ThemeToggle from './ThemeToggle';
 import { Search } from 'lucide-react';
@@ -27,7 +29,7 @@ type Expense = {
   category: string;
   splits: { id: string; cents: number }[];
 };
-type Trip = {
+type Event = {
   id: string;
   title: string;
   subtitle: string;
@@ -83,23 +85,24 @@ function Modal({
   );
 }
 export default function App() {
-  const [trips, setTrips] = useState<{ id: string; title: string }[]>([]),
-    [trip, setTrip] = useState<Trip | null>(null),
+  const [events, setEvents] = useState<{ id: string; title: string }[]>([]),
+    [event, setEvent] = useState<Event | null>(null),
     [selected, setSelected] = useState('');
   const [view, setView] = useState<'expenses' | 'balances'>('expenses'),
-    [modal, setModal] = useState<'expense' | 'trip' | null>(null),
+    [modal, setModal] = useState<'expense' | 'event' | null>(null),
     [error, setError] = useState(''),
     [notice, setNotice] = useState(''),
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [editing, setEditing] = useState<Expense | null>(null);
   const [filter, setFilter] = useState('All'),
     [payer, setPayer] = useState(''),
     [participants, setParticipants] = useState<string[]>([]);
-  async function loadTrips() {
+  async function loadEvents() {
     try {
-      const list = await api('/trips');
-      setTrips(list);
+      const list = await api('/events');
+      setEvents(list);
       setSelected((s) => s || list[0]?.id || '');
     } catch (e) {
       setError((e as Error).message);
@@ -107,17 +110,17 @@ export default function App() {
     }
   }
   useEffect(() => {
-    void loadTrips();
+    void loadEvents();
   }, []);
   useEffect(() => {
     if (!selected) return;
     let active = true;
     setLoading(true);
     setError('');
-    api('/trips/' + selected)
+    api('/events/' + selected)
       .then((data) => {
         if (active) {
-          setTrip(data);
+          setEvent(data);
           setFilter('All');
           setSearch('');
         }
@@ -137,12 +140,12 @@ export default function App() {
     const timer = setTimeout(() => setNotice(''), 4500);
     return () => clearTimeout(timer);
   }, [notice]);
-  const name = (id: string) => trip?.members.find((m) => m.id === id)?.name || 'Someone';
+  const name = (id: string) => event?.members.find((m) => m.id === id)?.name || 'Someone';
   async function mutate(path: string, method: string, body?: unknown, message = 'Saved.') {
     setBusy(true);
     setError('');
     try {
-      setTrip(await api(path, method, body));
+      setEvent(await api(path, method, body));
       setNotice(message);
       return true;
     } catch (e) {
@@ -152,16 +155,23 @@ export default function App() {
       setBusy(false);
     }
   }
-  function openExpense() {
-    if (!trip) return;
-    setPayer(trip.members[0].id);
-    setParticipants(trip.members.map((m) => m.id));
+  function openExpense(expense?: Expense) {
+    if (!event) return;
+    setEditing(expense || null);
+    setPayer(expense?.payerId || event.members[0].id);
+    setParticipants(
+      expense
+        ? event.members
+            .filter((member) => expense.splits.some((share) => share.id === member.id))
+            .map((member) => member.id)
+        : event.members.map((m) => m.id),
+    );
     setError('');
     setModal('expense');
   }
   async function saveExpense(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!trip) return;
+    if (!event) return;
     const data = new FormData(e.currentTarget);
     const amount = String(data.get('amount'));
     if (!/^\d+(\.\d{1,2})?$/.test(amount)) {
@@ -171,8 +181,8 @@ export default function App() {
     const cents = Math.round(Number(amount) * 100);
     if (
       await mutate(
-        `/trips/${trip.id}/expenses`,
-        'POST',
+        `/events/${event.id}/expenses${editing ? '/' + editing.id : ''}`,
+        editing ? 'PUT' : 'POST',
         {
           title: data.get('title'),
           cents,
@@ -186,32 +196,32 @@ export default function App() {
     )
       setModal(null);
   }
-  async function saveTrip(e: FormEvent<HTMLFormElement>) {
+  async function saveEvent(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     setBusy(true);
     setError('');
     try {
-      const created = await api('/trips', 'POST', {
+      const created = await api('/events', 'POST', {
         title: data.get('title'),
         names: String(data.get('names'))
           .split(',')
           .map((n) => n.trim())
           .filter(Boolean),
       });
-      setTrips((t) => [...t, created]);
-      setTrip(created);
+      setEvents((t) => [...t, created]);
+      setEvent(created);
       setSelected(created.id);
       setModal(null);
-      setNotice('Trip created.');
+      setNotice('Event created.');
     } catch (e) {
       setError((e as Error).message);
     } finally {
       setBusy(false);
     }
   }
-  const total = trip?.expenses.reduce((sum, e) => sum + e.cents, 0) || 0;
-  const expenses = trip ? filterExpenses(trip.expenses, filter, search, trip.members) : [];
+  const total = event?.expenses.reduce((sum, e) => sum + e.cents, 0) || 0;
+  const expenses = event ? filterExpenses(event.expenses, filter, search, event.members) : [];
   return (
     <>
       <a className="skip" href="#main">
@@ -229,10 +239,10 @@ export default function App() {
           />
           Split
         </a>
-        <span className="app-description">Expense tracker</span>
-        <nav className="trip-nav" aria-label="Trips">
-          <h2>Trips</h2>
-          {trips.map((t) => (
+        <span className="app-description">Event expenses</span>
+        <nav className="event-nav" aria-label="Events">
+          <h2>Events</h2>
+          {events.map((t) => (
             <button
               key={t.id}
               aria-current={selected === t.id ? 'page' : undefined}
@@ -243,30 +253,49 @@ export default function App() {
           ))}
         </nav>
         <button
-          className="button new-trip"
+          className="button new-event"
           onClick={() => {
             setError('');
-            setModal('trip');
+            setModal('event');
           }}
         >
           <Plus size={16} aria-hidden="true" />
-          New trip
+          New event
         </button>
         <div className="sidebar-bottom">
-          <span>Stored locally in SQLite</span>
           <ThemeToggle />
         </div>
       </header>
       <main id="main">
         <div className="page-heading">
           <div>
-            <h1>{trip?.title || 'Trips'}</h1>
-            <p>Manage expenses and repayments for this trip.</p>
+            <h1>{event?.title || 'Events'}</h1>
+            <p>Track shared costs, contributions and repayments.</p>
           </div>
-          <label className="trip-switch">
-            <span className="sr-only">Choose trip</span>
+          <button
+            className="button"
+            disabled={!event?.expenses.length}
+            onClick={() => {
+              if (!event) return;
+              const url = URL.createObjectURL(
+                new Blob([expenseCsv(event.expenses, event.members)], {
+                  type: 'text/csv;charset=utf-8',
+                }),
+              );
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = 'event-expenses.csv';
+              link.click();
+              setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }}
+          >
+            <Download size={16} aria-hidden="true" />
+            Export CSV
+          </button>
+          <label className="event-switch">
+            <span className="sr-only">Choose event</span>
             <select value={selected} onChange={(e) => setSelected(e.target.value)}>
-              {trips.map((t) => (
+              {events.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.title}
                 </option>
@@ -280,7 +309,7 @@ export default function App() {
             {error}{' '}
             <button
               onClick={() => {
-                void loadTrips();
+                void loadEvents();
                 if (selected) setSelected('');
               }}
             >
@@ -290,30 +319,30 @@ export default function App() {
         )}
         {loading ? (
           <div className="loading">
-            <LoaderCircle className="spin" /> Loading trip…
+            <LoaderCircle className="spin" /> Loading event…
           </div>
         ) : (
-          trip && (
+          event && (
             <>
-              <section className="summary" aria-label="Trip summary">
+              <section className="summary" aria-label="Event summary">
                 <div className="summary-main">
                   <span className="small-label">Total expenses</span>
                   <strong>{euro(total)}</strong>
-                  <span>{trip.expenses.length} expenses / EUR</span>
+                  <span>{event.expenses.length} expenses / EUR</span>
                 </div>
                 <div className="summary-stat">
                   <span className="small-label">Members</span>
-                  <strong className="member-count">{trip.members.length}</strong>
-                  <p className="member-names">{trip.members.map((m) => m.name).join(', ')}</p>
+                  <strong className="member-count">{event.members.length}</strong>
+                  <p className="member-names">{event.members.map((m) => m.name).join(', ')}</p>
                 </div>
                 <div className="summary-stat">
                   <span className="small-label">Outstanding repayments</span>
                   <strong className="settle-total">
-                    {euro(trip.settlements.reduce((s, p) => s + p.cents, 0))}
+                    {euro(event.settlements.reduce((s, p) => s + p.cents, 0))}
                   </strong>
                   <span>
-                    {trip.settlements.length
-                      ? `${trip.settlements.length} repayments remaining`
+                    {event.settlements.length
+                      ? `${event.settlements.length} repayments remaining`
                       : 'No outstanding repayments'}
                   </span>
                 </div>
@@ -324,7 +353,7 @@ export default function App() {
                     <div
                       className="tabs"
                       role="tablist"
-                      aria-label="Trip details"
+                      aria-label="Event details"
                       onKeyDown={(event) => {
                         if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
                         event.preventDefault();
@@ -350,7 +379,7 @@ export default function App() {
                         aria-selected={view === 'expenses'}
                         onClick={() => setView('expenses')}
                       >
-                        Expenses <span>{trip.expenses.length}</span>
+                        Expenses <span>{event.expenses.length}</span>
                       </button>
                       <button
                         role="tab"
@@ -363,7 +392,7 @@ export default function App() {
                         Balances
                       </button>
                     </div>
-                    <button className="button primary" onClick={openExpense}>
+                    <button className="button primary" onClick={() => openExpense()}>
                       <Plus size={17} />
                       Add expense
                     </button>
@@ -382,7 +411,7 @@ export default function App() {
                           />
                         </label>
                         <div className="filters" aria-label="Filter expenses">
-                          {['All', 'Food', 'Stay', 'Travel', 'Other'].map((c) => (
+                          {['All', 'Food', 'Venue', 'Supplies', 'Transport', 'Other'].map((c) => (
                             <button
                               key={c}
                               className={filter === c ? 'selected' : ''}
@@ -421,6 +450,14 @@ export default function App() {
                                 </div>
                                 <strong>{euro(e.cents)}</strong>
                                 <button
+                                  className="icon-button"
+                                  disabled={busy}
+                                  aria-label={'Edit ' + e.title}
+                                  onClick={() => openExpense(e)}
+                                >
+                                  <Pencil size={16} />
+                                </button>
+                                <button
                                   className="icon-button delete"
                                   disabled={busy}
                                   aria-label={'Delete ' + e.title}
@@ -431,7 +468,7 @@ export default function App() {
                                       )
                                     )
                                       void mutate(
-                                        `/trips/${trip.id}/expenses/${e.id}`,
+                                        `/events/${event.id}/expenses/${e.id}`,
                                         'DELETE',
                                         undefined,
                                         'Expense removed.',
@@ -447,10 +484,10 @@ export default function App() {
                           <div className="empty">
                             <ReceiptText size={32} />
                             <h3>
-                              {trip.expenses.length ? 'No expenses found' : 'No expenses yet'}
+                              {event.expenses.length ? 'No expenses found' : 'No expenses yet'}
                             </h3>
                             <p>
-                              {trip.expenses.length
+                              {event.expenses.length
                                 ? 'Change the search or category filter.'
                                 : 'Add an expense to calculate balances.'}
                             </p>
@@ -470,7 +507,7 @@ export default function App() {
                       </div>
                       <div className="ledger-footer">
                         <span role="status">
-                          {expenses.length} of {trip.expenses.length} expenses
+                          {expenses.length} of {event.expenses.length} expenses
                         </span>
                       </div>
                     </div>
@@ -481,7 +518,7 @@ export default function App() {
                       id="balances-panel"
                       aria-labelledby="balances-tab"
                     >
-                      {trip.balances.map((m) => (
+                      {event.balances.map((m) => (
                         <div className="balance-row" key={m.id}>
                           <span>
                             {m.name}
@@ -506,8 +543,8 @@ export default function App() {
                     <h2>Repayments</h2>
                   </div>
                   <p>Suggested transfers based on current balances.</p>
-                  {trip.settlements.length ? (
-                    trip.settlements.map((p, i) => (
+                  {event.settlements.length ? (
+                    event.settlements.map((p, i) => (
                       <div className="transfer" key={p.fromId + p.toId}>
                         <div className="transfer-route">
                           <span>{name(p.fromId)}</span>
@@ -521,7 +558,7 @@ export default function App() {
                             disabled={busy}
                             onClick={() =>
                               void mutate(
-                                `/trips/${trip.id}/payments`,
+                                `/events/${event.id}/payments`,
                                 'POST',
                                 p,
                                 'Payment recorded. No money was moved.',
@@ -539,17 +576,17 @@ export default function App() {
                       <Check size={28} />
                       <h3>No outstanding repayments</h3>
                       <p>
-                        {trip.expenses.length
+                        {event.expenses.length
                           ? 'All recorded expenses are settled.'
                           : 'Add an expense when you’re ready.'}
                       </p>
                     </div>
                   )}
                   <p className="payment-note">Recording a repayment does not transfer money.</p>
-                  {trip.payments.length > 0 && (
+                  {event.payments.length > 0 && (
                     <details className="payments">
-                      <summary>Recorded payments ({trip.payments.length})</summary>
-                      {trip.payments.map((p) => (
+                      <summary>Recorded payments ({event.payments.length})</summary>
+                      {event.payments.map((p) => (
                         <div key={p.id}>
                           <span>
                             {name(p.fromId)} → {name(p.toId)}
@@ -561,7 +598,7 @@ export default function App() {
                             aria-label={`Undo payment from ${name(p.fromId)} to ${name(p.toId)}`}
                             onClick={() =>
                               void mutate(
-                                `/trips/${trip.id}/payments/${p.id}`,
+                                `/events/${event.id}/payments/${p.id}`,
                                 'DELETE',
                                 undefined,
                                 'Payment undone.',
@@ -586,24 +623,32 @@ export default function App() {
           {notice}
         </div>
       )}
-      {modal === 'expense' && trip && (
+      {modal === 'expense' && event && (
         <Modal
-          title="Add expense"
+          title={editing ? 'Edit expense' : 'Add expense'}
           close={() => {
             if (!busy) setModal(null);
           }}
         >
-          <form onSubmit={saveExpense}>
+          <form onSubmit={saveExpense} key={editing?.id || 'new'}>
             <p className="form-intro">Enter the amount, payer, and participants.</p>
             <label>
               Description
-              <input name="title" required maxLength={100} placeholder="e.g. Dinner" autoFocus />
+              <input
+                name="title"
+                defaultValue={editing?.title || ''}
+                required
+                maxLength={100}
+                placeholder="e.g. Dinner"
+                autoFocus
+              />
             </label>
             <div className="form-grid">
               <label>
                 Amount (€)
                 <input
                   name="amount"
+                  defaultValue={editing ? (editing.cents / 100).toFixed(2) : ''}
                   inputMode="decimal"
                   type="number"
                   min="0.01"
@@ -615,8 +660,8 @@ export default function App() {
               </label>
               <label>
                 Category
-                <select name="category">
-                  {['Food', 'Stay', 'Travel', 'Other'].map((c) => (
+                <select name="category" defaultValue={editing?.category || 'Food'}>
+                  {['Food', 'Venue', 'Supplies', 'Transport', 'Other'].map((c) => (
                     <option key={c}>{c}</option>
                   ))}
                 </select>
@@ -626,7 +671,7 @@ export default function App() {
               <label>
                 Paid by
                 <select value={payer} onChange={(e) => setPayer(e.target.value)}>
-                  {trip.members.map((m) => (
+                  {event.members.map((m) => (
                     <option key={m.id} value={m.id}>
                       {m.name}
                     </option>
@@ -639,16 +684,19 @@ export default function App() {
                   type="date"
                   name="date"
                   required
-                  defaultValue={new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
-                    .toISOString()
-                    .slice(0, 10)}
+                  defaultValue={
+                    editing?.date ||
+                    new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
+                      .toISOString()
+                      .slice(0, 10)
+                  }
                 />
               </label>
             </div>
             <fieldset>
               <legend>Split equally between</legend>
               <div className="participant-list">
-                {trip.members.map((m) => (
+                {event.members.map((m) => (
                   <label key={m.id}>
                     <input
                       type="checkbox"
@@ -671,28 +719,28 @@ export default function App() {
               </div>
             )}
             <button className="button primary wide" disabled={busy || !participants.length}>
-              {busy ? 'Saving…' : 'Add expense'}
+              {busy ? 'Saving…' : editing ? 'Save changes' : 'Add expense'}
               <ArrowDownLeft size={17} />
             </button>
           </form>
         </Modal>
       )}
-      {modal === 'trip' && (
+      {modal === 'event' && (
         <Modal
-          title="New trip"
+          title="New event"
           close={() => {
             if (!busy) setModal(null);
           }}
         >
-          <form onSubmit={saveTrip}>
-            <p className="form-intro">Create a trip and add the people sharing expenses.</p>
+          <form onSubmit={saveEvent}>
+            <p className="form-intro">Create an event and add the people sharing expenses.</p>
             <label>
-              Trip name
+              Event name
               <input
                 name="title"
                 maxLength={70}
                 required
-                placeholder="A few days in Lisbon"
+                placeholder="e.g. Birthday dinner"
                 autoFocus
               />
             </label>
@@ -707,7 +755,7 @@ export default function App() {
               </div>
             )}
             <button className="button primary wide" disabled={busy}>
-              {busy ? 'Creating…' : 'Create trip'}
+              {busy ? 'Creating…' : 'Create event'}
               <ArrowRight size={17} />
             </button>
           </form>

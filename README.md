@@ -1,25 +1,27 @@
 # Split
 
-A shared expense tracker for trips and groups. Add expenses as you go, split them between people, and keep track of repayments.
+Split shared event costs between people. Record who paid for the venue, food, supplies or transport, then work out the repayments.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/dark.jpg">
-  <img src="docs/desktop.jpg" alt="Split desktop interface" width="1200">
+  <source media="(prefers-color-scheme: dark)" srcset="docs/dark-dashboard.jpg">
+  <img src="docs/desktop-dashboard.jpg" alt="Split desktop interface" width="1200">
 </picture>
 
 <details>
   <summary>Mobile view</summary>
   <br>
-  <img src="docs/mobile.jpg" alt="Split mobile interface" width="320">
+  <img src="docs/mobile-dashboard.jpg" alt="Split mobile interface" width="320">
 </details>
 
 ## Features
 
-- Separate trips with their own members and expenses.
+- Separate events with their own participants and expenses.
 - Equal splits between selected people, calculated in cents.
-- Expense search, category filters, and individual balances.
+- Expense editing, search, event categories, and individual balances.
 - Suggested repayments with payment tracking and undo.
-- SQLite storage and light and dark themes.
+- CSV export, SQLite storage, and light and dark themes.
+
+The desktop dashboard keeps the ledger and repayments visible together. Long lists scroll inside their panels.
 
 ## Stack
 
@@ -34,7 +36,7 @@ npm ci
 npm run dev
 ```
 
-Open [localhost:5174](http://localhost:5174). A sample trip is included on the first run.
+Open [localhost:5174](http://localhost:5174). A sample event is included on the first run.
 
 ```sh
 npm test
