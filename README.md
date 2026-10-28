@@ -8,6 +8,8 @@ Shared expenses, balances, and repayments for trips and groups.
 
 ## What it does
 
+- Search by description, category, or payer, including names without accents.
+
 - Create separate trips with 2–12 people.
 - Add expenses, choose who paid, and split between selected participants.
 - Browse expenses by category, see individual balances, and remove mistakes.

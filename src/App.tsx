@@ -1,4 +1,6 @@
+import { filterExpenses } from './expenses';
 import ThemeToggle from './ThemeToggle';
+import { Search } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   ArrowDownLeft,
@@ -6,10 +8,6 @@ import {
   ArrowRight,
   Plus,
   ReceiptText,
-  Utensils,
-  TrainFront,
-  House,
-  MoreHorizontal,
   X,
   Check,
   Trash2,
@@ -41,12 +39,6 @@ type Trip = {
 };
 const euro = (cents: number) =>
   new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(cents / 100);
-const icons: Record<string, typeof House> = {
-  Food: Utensils,
-  Stay: House,
-  Travel: TrainFront,
-  Other: MoreHorizontal,
-};
 async function api(path: string, method = 'GET', body?: unknown) {
   const res = await fetch('/api' + path, {
     method,
@@ -100,6 +92,7 @@ export default function App() {
     [notice, setNotice] = useState(''),
     [busy, setBusy] = useState(false),
     [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('All'),
     [payer, setPayer] = useState(''),
     [participants, setParticipants] = useState<string[]>([]);
@@ -126,6 +119,7 @@ export default function App() {
         if (active) {
           setTrip(data);
           setFilter('All');
+          setSearch('');
         }
       })
       .catch((e) => {
@@ -217,7 +211,7 @@ export default function App() {
     }
   }
   const total = trip?.expenses.reduce((sum, e) => sum + e.cents, 0) || 0;
-  const expenses = trip?.expenses.filter((e) => filter === 'All' || e.category === filter) || [];
+  const expenses = trip ? filterExpenses(trip.expenses, filter, search, trip.members) : [];
   return (
     <>
       <a className="skip" href="#main">
@@ -241,7 +235,7 @@ export default function App() {
           ))}
         </nav>
         <button
-          className="button primary new-trip"
+          className="button new-trip"
           onClick={() => {
             setError('');
             setModal('trip');
@@ -319,9 +313,32 @@ export default function App() {
               <div className="content-grid">
                 <section className="ledger">
                   <div className="ledger-heading">
-                    <div className="tabs" role="tablist" aria-label="Trip details">
+                    <div
+                      className="tabs"
+                      role="tablist"
+                      aria-label="Trip details"
+                      onKeyDown={(event) => {
+                        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                        event.preventDefault();
+                        const next =
+                          event.key === 'Home'
+                            ? 'expenses'
+                            : event.key === 'End'
+                              ? 'balances'
+                              : view === 'expenses'
+                                ? 'balances'
+                                : 'expenses';
+                        setView(next);
+                        requestAnimationFrame(() =>
+                          document.getElementById(next + '-tab')?.focus(),
+                        );
+                      }}
+                    >
                       <button
                         role="tab"
+                        id="expenses-tab"
+                        aria-controls="expenses-panel"
+                        tabIndex={view === 'expenses' ? 0 : -1}
                         aria-selected={view === 'expenses'}
                         onClick={() => setView('expenses')}
                       >
@@ -329,6 +346,9 @@ export default function App() {
                       </button>
                       <button
                         role="tab"
+                        id="balances-tab"
+                        aria-controls="balances-panel"
+                        tabIndex={view === 'balances' ? 0 : -1}
                         aria-selected={view === 'balances'}
                         onClick={() => setView('balances')}
                       >
@@ -341,30 +361,41 @@ export default function App() {
                     </button>
                   </div>
                   {view === 'expenses' ? (
-                    <>
-                      <div className="filters" aria-label="Filter expenses">
-                        {['All', 'Food', 'Stay', 'Travel', 'Other'].map((c) => (
-                          <button
-                            key={c}
-                            className={filter === c ? 'selected' : ''}
-                            aria-pressed={filter === c}
-                            onClick={() => setFilter(c)}
-                          >
-                            {c}
-                          </button>
-                        ))}
+                    <div role="tabpanel" id="expenses-panel" aria-labelledby="expenses-tab">
+                      <div className="expense-tools">
+                        <label className="expense-search">
+                          <span className="sr-only">Search expenses</span>
+                          <Search size={17} aria-hidden="true" />
+                          <input
+                            type="search"
+                            value={search}
+                            onChange={(event) => setSearch(event.target.value)}
+                            placeholder="Search expenses or people"
+                          />
+                        </label>
+                        <div className="filters" aria-label="Filter expenses">
+                          {['All', 'Food', 'Stay', 'Travel', 'Other'].map((c) => (
+                            <button
+                              key={c}
+                              className={filter === c ? 'selected' : ''}
+                              aria-pressed={filter === c}
+                              onClick={() => setFilter(c)}
+                            >
+                              {c}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="ledger-columns" aria-hidden="true">
+                        <span>Expense</span>
+                        <span>Amount</span>
+                        <span />
                       </div>
                       <div className="expense-list">
                         {expenses.length ? (
                           expenses.map((e) => {
-                            const Icon = icons[e.category] || MoreHorizontal;
                             return (
                               <article className="expense" key={e.id}>
-                                <span
-                                  className={'expense-icon category-' + e.category.toLowerCase()}
-                                >
-                                  <Icon size={20} />
-                                </span>
                                 <div className="expense-info">
                                   <h3>{e.title}</h3>
                                   <p>
@@ -408,28 +439,42 @@ export default function App() {
                           <div className="empty">
                             <ReceiptText size={32} />
                             <h3>
-                              {trip.expenses.length
-                                ? 'Nothing in this category.'
-                                : 'No expenses yet'}
+                              {trip.expenses.length ? 'No expenses found' : 'No expenses yet'}
                             </h3>
                             <p>
                               {trip.expenses.length
-                                ? 'Try another filter.'
+                                ? 'Change the search or category filter.'
                                 : 'Add an expense to calculate balances.'}
                             </p>
+                            {(search || filter !== 'All') && (
+                              <button
+                                className="button"
+                                onClick={() => {
+                                  setSearch('');
+                                  setFilter('All');
+                                }}
+                              >
+                                Clear filters
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
                       <div className="ledger-footer">
-                        <span>Expenses in this view</span>
-                        <span>{expenses.length} items</span>
+                        <span role="status">
+                          {expenses.length} of {trip.expenses.length} expenses
+                        </span>
                       </div>
-                    </>
+                    </div>
                   ) : (
-                    <div className="balance-list">
-                      {trip.balances.map((m, i) => (
+                    <div
+                      className="balance-list"
+                      role="tabpanel"
+                      id="balances-panel"
+                      aria-labelledby="balances-tab"
+                    >
+                      {trip.balances.map((m) => (
                         <div className="balance-row" key={m.id}>
-                          <span className={'avatar tone-' + (i % 4)}>{m.name[0]}</span>
                           <span>
                             {m.name}
                             <small>

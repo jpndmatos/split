@@ -600,3 +600,147 @@ form legend {
     font-size: 12px;
   }
 }
+
+/* Flat surfaces keep the ledger and its controls in one task area. */
+.summary {
+  border: 0;
+  border-radius: 8px;
+  overflow: clip;
+}
+.summary-main,
+.summary-stat {
+  border: 0;
+  padding: 24px;
+}
+.ledger {
+  border: 0;
+  border-radius: 8px;
+  overflow: clip;
+}
+.ledger-heading {
+  border: 0;
+  padding: 16px 20px;
+}
+.tabs button {
+  padding-block: 12px;
+}
+.expense-tools {
+  padding: 0 20px 16px;
+}
+.expense-search {
+  display: block;
+  position: relative;
+  margin-bottom: 12px;
+}
+.expense-search > svg {
+  position: absolute;
+  left: 12px;
+  top: 14px;
+  color: var(--color-ink-2);
+  pointer-events: none;
+}
+.expense-search input {
+  width: 100%;
+  padding-left: 40px !important;
+}
+.filters {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  gap: 8px;
+}
+.filters button {
+  border: 0;
+  min-height: 36px;
+  padding: 8px 12px;
+  border-radius: 4px;
+}
+.filters button.selected {
+  border: 0;
+  background: var(--color-selected);
+  color: var(--color-accent);
+}
+.ledger-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 96px 36px;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--color-paper-3);
+  font-size: 12px;
+  color: var(--color-ink-2);
+}
+.ledger-columns > span:nth-child(2) {
+  text-align: right;
+}
+.expense {
+  padding: 20px;
+  gap: 16px;
+}
+.expense:hover {
+  background: var(--color-paper-3);
+}
+.ledger-footer {
+  border: 0;
+  background: var(--color-paper-3);
+}
+.balance-row > span {
+  flex: 1;
+  font-size: 14px;
+}
+.empty .button {
+  margin-top: 16px;
+}
+.settle-panel {
+  border-top: 0;
+  background: transparent;
+}
+.aside-title {
+  margin-top: 0;
+}
+.transfer {
+  padding-block: 20px;
+}
+.transfer-action .button {
+  background: var(--color-paper-2);
+}
+.participant-list label {
+  border: 1px solid transparent;
+  background: var(--color-paper-3);
+}
+.participant-list label:has(input:checked) {
+  background: var(--color-selected);
+  color: var(--color-accent);
+}
+@media (max-width: 520px) {
+  .summary-main,
+  .summary-stat {
+    padding: 20px 16px;
+  }
+  .summary-main {
+    border-bottom: 1px solid var(--color-rule);
+  }
+  .ledger-heading {
+    padding: 16px;
+  }
+  .expense-tools {
+    padding: 0 16px 16px;
+  }
+  .ledger-columns {
+    padding: 12px 16px;
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) 80px 30px;
+  }
+  .expense {
+    padding: 20px 16px;
+    gap: 12px;
+  }
+  .filters button {
+    min-height: 40px;
+  }
+  .new-trip {
+    min-height: 44px;
+  }
+  .tabs button {
+    min-height: 44px;
+  }
+}
