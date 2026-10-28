@@ -1,4 +1,4 @@
-/* Hallmark · shared app foundations · v2.0.0 */
+/* Hallmark Â· shared app foundations Â· v2.0.0 */
 *,
 *::before,
 *::after {
@@ -200,6 +200,11 @@ fieldset:disabled {
   background: var(--color-hover);
 }
 .theme-toggle {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 8px;
+  flex-shrink: 0;
   background: transparent;
 }
 .brand {

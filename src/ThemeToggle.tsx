@@ -30,11 +30,10 @@ export default function ThemeToggle() {
       onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}
     >
       {mode === 'dark' ? (
-        <Sun size={16} aria-hidden="true" />
+        <Sun size={18} aria-hidden="true" />
       ) : (
-        <Moon size={16} aria-hidden="true" />
+        <Moon size={18} aria-hidden="true" />
       )}
-      <span>{mode === 'dark' ? 'Light mode' : 'Dark mode'}</span>
     </button>
   );
 }

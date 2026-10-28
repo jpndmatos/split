@@ -1,9 +1,9 @@
-/* Hallmark · shape: app screen · genre: modern-minimal · theme: custom · redesign: full
- * display: Poppins · body: Poppins · nav: trip list · signature: expense ledger
- * states: loading, empty, error, full · axes: light/geometric-sans/cool · v2.0.0 */
-/* Hallmark · pre-emit critique: readability leads; trip selection and repayments have separate regions. */
-/* Hallmark · answered F3 · app headings use short fixed-size labels rather than display typography */
-/* Hallmark · answered F4 · selected tabs and file settings are state indicators, not competing primary actions */
+/* Hallmark Â· shape: app screen Â· genre: modern-minimal Â· theme: custom Â· redesign: full
+ * display: Poppins Â· body: Poppins Â· nav: trip list Â· signature: expense ledger
+ * states: loading, empty, error, full Â· axes: light/geometric-sans/cool Â· v2.0.0 */
+/* Hallmark Â· pre-emit critique: readability leads; trip selection and repayments have separate regions. */
+/* Hallmark Â· answered F3 Â· app headings use short fixed-size labels rather than display typography */
+/* Hallmark Â· answered F4 Â· selected tabs and file settings are state indicators, not competing primary actions */
 @import url('./tokens.css');
 @import url('./base.css');
 .topbar {
@@ -72,7 +72,8 @@
   color: var(--color-ink-2);
 }
 .sidebar-bottom .theme-toggle {
-  justify-content: flex-start;
+  justify-content: center;
+  align-self: flex-start;
 }
 main {
   width: min(calc(100% - 228px), 1350px);
