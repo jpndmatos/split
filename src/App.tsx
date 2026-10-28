@@ -219,6 +219,14 @@ export default function App() {
       </a>
       <header className="topbar">
         <a className="brand" href="./" aria-label="Split home">
+          <img
+            className="app-icon"
+            src={import.meta.env.BASE_URL + 'favicon.svg?v=2'}
+            width="28"
+            height="28"
+            alt=""
+            aria-hidden="true"
+          />
           Split
         </a>
         <span className="app-description">Expense tracker</span>
