@@ -1,8 +1,10 @@
 # Split
 
-A little less awkward. A shared expense tracker for trips, dinners, and the people who split the last slice with you.
+Shared expenses, balances, and repayments for trips and groups.
 
 ![Split desktop workspace](docs/desktop.jpg)
+
+![Dark theme](docs/dark.jpg)
 
 ## What it does
 
@@ -56,6 +58,6 @@ This is a local portfolio app, with EUR and equal splits. It has no authenticati
 
 ## Design
 
-Receipt-inspired details, warm greens, clear running totals, and a separate settlement panel. Mobile layouts stack the ledger and repayment cards. Dialogs support Escape, controls have labels, and motion respects reduced-motion preferences.
+A trip navigation panel, expense ledger, and separate repayment list. Mobile layouts stack these regions. Poppins is bundled locally. Light and dark themes follow the system preference initially and remember an explicit choice. Dialogs support Escape and controls have visible focus states.
 
-Built by [João Matos](https://github.com/jpndmatos). MIT licensed. Icons by Lucide; DM Sans and Manrope served by Google Fonts.
+Built by [João Matos](https://github.com/jpndmatos). MIT licensed. Icons by Lucide; Poppins is bundled locally using Fontsource.

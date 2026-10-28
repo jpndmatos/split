@@ -1,0 +1,92 @@
+/* Hallmark · app colour and typography tokens · v2.0.0 */
+:root {
+  --font-body: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-body);
+  --container: 1480px;
+  --text-md: 1rem;
+  --text-sm: 0.875rem;
+  --text-xs: 0.75rem;
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --color-paper: #f3f5f4;
+  --color-paper-2: #ffffff;
+  --color-paper-3: #eef1ef;
+  --color-ink: #1b2822;
+  --color-ink-2: #4f6057;
+  --color-muted: #5d6d64;
+  --color-rule: #cdd6d0;
+  --color-input-edge: #7b8b80;
+  --color-hover: #e7ede9;
+  --color-selected: #dcece2;
+  --color-disabled: #e5e9e6;
+  --color-accent: #246547;
+  --color-accent-hover: #1c5138;
+  --color-accent-ink: #ffffff;
+  --color-focus: #267752;
+  --color-error: #a12828;
+  --color-error-bg: #fff0ee;
+  --color-overlay: #0b161c99;
+  --color-success: #246547;
+  --color-success-bg: #e6f2e9;
+  --color-track-work: #b9d8c7;
+  --color-track-off: #e6e9e7;
+  --color-track-night: #cdd3d1;
+  --color-checker: #e0e2e4;
+  --color-preview: #e8e9eb;
+}
+[data-mode='dark'] {
+  --color-paper: #111916;
+  --color-paper-2: #19231e;
+  --color-paper-3: #202d25;
+  --color-ink: #edf3ef;
+  --color-ink-2: #b9c8bf;
+  --color-muted: #a3b6a9;
+  --color-rule: #3c5143;
+  --color-input-edge: #7b9585;
+  --color-hover: #293c30;
+  --color-selected: #304f3b;
+  --color-disabled: #2b352e;
+  --color-accent: #8cceaa;
+  --color-accent-hover: #aadfbe;
+  --color-accent-ink: #11281a;
+  --color-focus: #8cceaa;
+  --color-error: #ffaaa0;
+  --color-error-bg: #3e2422;
+  --color-overlay: #05090dc9;
+  --color-success: #9dd7b2;
+  --color-success-bg: #213e2b;
+  --color-track-work: #345b45;
+  --color-track-off: #29352d;
+  --color-track-night: #202a25;
+  --color-checker: #353e39;
+  --color-preview: #111715;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-mode]) {
+    --color-paper: #111916;
+    --color-paper-2: #19231e;
+    --color-paper-3: #202d25;
+    --color-ink: #edf3ef;
+    --color-ink-2: #b9c8bf;
+    --color-muted: #a3b6a9;
+    --color-rule: #3c5143;
+    --color-input-edge: #7b9585;
+    --color-hover: #293c30;
+    --color-selected: #304f3b;
+    --color-disabled: #2b352e;
+    --color-accent: #8cceaa;
+    --color-accent-hover: #aadfbe;
+    --color-accent-ink: #11281a;
+    --color-focus: #8cceaa;
+    --color-error: #ffaaa0;
+    --color-error-bg: #3e2422;
+    --color-overlay: #05090dc9;
+    --color-success: #9dd7b2;
+    --color-success-bg: #213e2b;
+    --color-track-work: #345b45;
+    --color-track-off: #29352d;
+    --color-track-night: #202a25;
+    --color-checker: #353e39;
+    --color-preview: #111715;
+  }
+}

@@ -1,3 +1,4 @@
+import ThemeToggle from './ThemeToggle';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
   ArrowDownLeft,
@@ -13,7 +14,6 @@ import {
   Check,
   Trash2,
   Undo2,
-  Leaf,
   ChevronDown,
   LoaderCircle,
 } from 'lucide-react';
@@ -187,7 +187,7 @@ export default function App() {
           date: data.get('date'),
           category: data.get('category'),
         },
-        'Expense added. Everyone’s share is updated.',
+        'Expense saved.',
       )
     )
       setModal(null);
@@ -209,7 +209,7 @@ export default function App() {
       setTrip(created);
       setSelected(created.id);
       setModal(null);
-      setNotice('Your shared tab is ready.');
+      setNotice('Trip created.');
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -225,30 +225,41 @@ export default function App() {
       </a>
       <header className="topbar">
         <a className="brand" href="./" aria-label="Split home">
-          <span className="brand-icon">
-            <Leaf size={24} />
-          </span>
-          split<span className="brand-period">.</span>
+          Split
         </a>
-        <span className="top-tag">Good company. Fair shares.</span>
+        <span className="app-description">Expense tracker</span>
+        <nav className="trip-nav" aria-label="Trips">
+          <h2>Trips</h2>
+          {trips.map((t) => (
+            <button
+              key={t.id}
+              aria-current={selected === t.id ? 'page' : undefined}
+              onClick={() => setSelected(t.id)}
+            >
+              {t.title}
+            </button>
+          ))}
+        </nav>
         <button
-          className="button subtle"
+          className="button primary new-trip"
           onClick={() => {
             setError('');
             setModal('trip');
           }}
         >
-          <Plus size={16} /> New trip
+          <Plus size={16} aria-hidden="true" />
+          New trip
         </button>
+        <div className="sidebar-bottom">
+          <span>Stored locally in SQLite</span>
+          <ThemeToggle />
+        </div>
       </header>
       <main id="main">
-        <div className="eyebrow">
-          <span className="live-dot" /> THE SHARED TAB
-        </div>
         <div className="page-heading">
           <div>
-            <h1>{trip?.title || 'A little less awkward.'}</h1>
-            <p>{trip?.subtitle || 'Shared expenses, sorted.'}</p>
+            <h1>{trip?.title || 'Trips'}</h1>
+            <p>Manage expenses and repayments for this trip.</p>
           </div>
           <label className="trip-switch">
             <span className="sr-only">Choose trip</span>
@@ -277,41 +288,31 @@ export default function App() {
         )}
         {loading ? (
           <div className="loading">
-            <LoaderCircle className="spin" /> Getting your tab ready…
+            <LoaderCircle className="spin" /> Loading trip…
           </div>
         ) : (
           trip && (
             <>
               <section className="summary" aria-label="Trip summary">
                 <div className="summary-main">
-                  <span className="small-label">TOTAL SPENT TOGETHER</span>
+                  <span className="small-label">Total expenses</span>
                   <strong>{euro(total)}</strong>
-                  <span>{trip.expenses.length} expenses · EUR</span>
-                  <ReceiptText className="receipt-art" size={95} strokeWidth={1} />
+                  <span>{trip.expenses.length} expenses / EUR</span>
                 </div>
                 <div className="summary-stat">
-                  <span className="small-label">THE GOOD COMPANY</span>
-                  <div className="avatars">
-                    {trip.members.slice(0, 6).map((m, i) => (
-                      <span key={m.id} className={'avatar tone-' + (i % 4)} title={m.name}>
-                        {m.name.slice(0, 1)}
-                      </span>
-                    ))}
-                    {trip.members.length > 6 && (
-                      <span className="avatar">+{trip.members.length - 6}</span>
-                    )}
-                  </div>
-                  <span>{trip.members.length} people sharing this trip</span>
+                  <span className="small-label">Members</span>
+                  <strong className="member-count">{trip.members.length}</strong>
+                  <p className="member-names">{trip.members.map((m) => m.name).join(', ')}</p>
                 </div>
                 <div className="summary-stat">
-                  <span className="small-label">LEFT TO SETTLE</span>
+                  <span className="small-label">Outstanding repayments</span>
                   <strong className="settle-total">
                     {euro(trip.settlements.reduce((s, p) => s + p.cents, 0))}
                   </strong>
                   <span>
                     {trip.settlements.length
-                      ? `${trip.settlements.length} transfers to square things up`
-                      : 'All square. Nice one.'}
+                      ? `${trip.settlements.length} repayments remaining`
+                      : 'No outstanding repayments'}
                   </span>
                 </div>
               </section>
@@ -367,7 +368,7 @@ export default function App() {
                                 <div className="expense-info">
                                   <h3>{e.title}</h3>
                                   <p>
-                                    {name(e.payerId)} paid ·{' '}
+                                    {name(e.payerId)} paid /{' '}
                                     {new Intl.DateTimeFormat('en-GB', {
                                       day: 'numeric',
                                       month: 'short',
@@ -375,7 +376,7 @@ export default function App() {
                                     }).format(new Date(e.date))}
                                     <span className="split-detail">
                                       {' '}
-                                      · Split {e.splits.length} ways
+                                      / Split {e.splits.length} ways
                                     </span>
                                   </p>
                                 </div>
@@ -409,18 +410,18 @@ export default function App() {
                             <h3>
                               {trip.expenses.length
                                 ? 'Nothing in this category.'
-                                : 'The first round is on…?'}
+                                : 'No expenses yet'}
                             </h3>
                             <p>
                               {trip.expenses.length
                                 ? 'Try another filter.'
-                                : 'Add your first expense to start the shared tab.'}
+                                : 'Add an expense to calculate balances.'}
                             </p>
                           </div>
                         )}
                       </div>
                       <div className="ledger-footer">
-                        <span>Little things add up. We keep track.</span>
+                        <span>Expenses in this view</span>
                         <span>{expenses.length} items</span>
                       </div>
                     </>
@@ -432,7 +433,7 @@ export default function App() {
                           <span>
                             {m.name}
                             <small>
-                              {m.cents > 0 ? 'gets back' : m.cents < 0 ? 'owes' : 'all square'}
+                              {m.cents > 0 ? 'gets back' : m.cents < 0 ? 'owes' : 'settled'}
                             </small>
                           </span>
                           <strong className={m.cents < 0 ? 'negative' : 'positive'}>
@@ -449,9 +450,9 @@ export default function App() {
                     <span className="settle-icon">
                       <ArrowUpRight size={20} />
                     </span>
-                    <h2>Square it up</h2>
+                    <h2>Repayments</h2>
                   </div>
-                  <p>A few transfers, and you’re even.</p>
+                  <p>Suggested transfers based on current balances.</p>
                   {trip.settlements.length ? (
                     trip.settlements.map((p, i) => (
                       <div className="transfer" key={p.fromId + p.toId}>
@@ -483,22 +484,15 @@ export default function App() {
                   ) : (
                     <div className="all-square">
                       <Check size={28} />
-                      <h3>All square!</h3>
+                      <h3>No outstanding repayments</h3>
                       <p>
                         {trip.expenses.length
-                          ? 'Less maths. More memories.'
+                          ? 'All recorded expenses are settled.'
                           : 'Add an expense when you’re ready.'}
                       </p>
                     </div>
                   )}
-                  <div className="aside-note">
-                    <Leaf size={16} />
-                    <p>
-                      Just a shared record.
-                      <br />
-                      No payments or bank connections.
-                    </p>
-                  </div>
+                  <p className="payment-note">Recording a repayment does not transfer money.</p>
                   {trip.payments.length > 0 && (
                     <details className="payments">
                       <summary>Recorded payments ({trip.payments.length})</summary>
@@ -529,10 +523,6 @@ export default function App() {
                   )}
                 </aside>
               </div>
-              <div className="bottom-note">
-                <span>Made for the people you split the last slice with.</span>
-                <span>LOCAL DEMO · SAVED TO SQLITE</span>
-              </div>
             </>
           )
         )}
@@ -545,22 +535,16 @@ export default function App() {
       )}
       {modal === 'expense' && trip && (
         <Modal
-          title="Add a little something"
+          title="Add expense"
           close={() => {
             if (!busy) setModal(null);
           }}
         >
           <form onSubmit={saveExpense}>
-            <p className="form-intro">You paid. We’ll do the maths.</p>
+            <p className="form-intro">Enter the amount, payer, and participants.</p>
             <label>
-              What was it for?
-              <input
-                name="title"
-                required
-                maxLength={100}
-                placeholder="Dinner, a taxi, one more coffee…"
-                autoFocus
-              />
+              Description
+              <input name="title" required maxLength={100} placeholder="e.g. Dinner" autoFocus />
             </label>
             <div className="form-grid">
               <label>
@@ -642,15 +626,15 @@ export default function App() {
       )}
       {modal === 'trip' && (
         <Modal
-          title="A new shared tab"
+          title="New trip"
           close={() => {
             if (!busy) setModal(null);
           }}
         >
           <form onSubmit={saveTrip}>
-            <p className="form-intro">A weekend away, a house, or just Friday dinner.</p>
+            <p className="form-intro">Create a trip and add the people sharing expenses.</p>
             <label>
-              Give it a name
+              Trip name
               <input
                 name="title"
                 maxLength={70}
@@ -660,17 +644,17 @@ export default function App() {
               />
             </label>
             <label>
-              Who’s coming?
+              Members
               <textarea name="names" required placeholder="João, Inês, Miguel, Sofia" rows={3} />
             </label>
-            <small>2–12 names, separated by commas. EUR only for now.</small>
+            <small>2 to 12 names, separated by commas. EUR only for now.</small>
             {error && (
               <div className="error" role="alert">
                 {error}
               </div>
             )}
             <button className="button primary wide" disabled={busy}>
-              {busy ? 'Creating…' : 'Start the tab'}
+              {busy ? 'Creating…' : 'Create trip'}
               <ArrowRight size={17} />
             </button>
           </form>
