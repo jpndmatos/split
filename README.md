@@ -48,5 +48,3 @@ npm start
 ```
 
 `npm start` serves the production build and API on port 3001. Data is stored in `data/split.db`.
-
-Built by [João Matos](https://github.com/jpndmatos). [MIT license](LICENSE).
