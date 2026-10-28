@@ -41,14 +41,14 @@ Amounts are integer cents. If €10.01 is divided three ways, the shares are €
 
 API routes:
 
-| Method | Route | Purpose |
-| --- | --- | --- |
-| GET / POST | `/api/trips` | List or create trips |
-| GET | `/api/trips/:id` | Trip, expenses, balances, repayments |
-| POST | `/api/trips/:id/expenses` | Add an expense |
-| DELETE | `/api/trips/:id/expenses/:expenseId` | Remove an expense |
-| POST | `/api/trips/:id/payments` | Record a suggested repayment |
-| DELETE | `/api/trips/:id/payments/:paymentId` | Undo a repayment |
+| Method     | Route                                | Purpose                              |
+| ---------- | ------------------------------------ | ------------------------------------ |
+| GET / POST | `/api/trips`                         | List or create trips                 |
+| GET        | `/api/trips/:id`                     | Trip, expenses, balances, repayments |
+| POST       | `/api/trips/:id/expenses`            | Add an expense                       |
+| DELETE     | `/api/trips/:id/expenses/:expenseId` | Remove an expense                    |
+| POST       | `/api/trips/:id/payments`            | Record a suggested repayment         |
+| DELETE     | `/api/trips/:id/payments/:paymentId` | Undo a repayment                     |
 
 ## Scope
 
