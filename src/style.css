@@ -755,3 +755,47 @@ form legend {
   height: 28px;
   flex-shrink: 0;
 }
+
+/* Ledger hierarchy and predictable touch targets. */
+.summary strong,
+.expense > strong,
+.transfer-action strong {
+  font-variant-numeric: tabular-nums;
+}
+.expense h3 {
+  line-height: 1.6;
+}
+.expense p {
+  line-height: 1.7;
+}
+.trip-nav {
+  overflow-y: auto;
+  min-height: 0;
+}
+.trip-nav button[aria-current='page'] {
+  box-shadow: inset 3px 0 var(--color-accent);
+}
+.tabs button {
+  position: relative;
+}
+.expense-search:focus-within > svg {
+  color: var(--color-accent);
+}
+@media (max-width: 520px) {
+  .expense {
+    align-items: flex-start;
+  }
+  .expense .delete {
+    min-width: 40px;
+    min-height: 40px;
+  }
+  .expense-info {
+    flex-basis: 55%;
+  }
+  .ledger-columns {
+    grid-template-columns: minmax(0, 1fr) 80px 40px;
+  }
+  .transfer-action .button {
+    min-height: 44px;
+  }
+}

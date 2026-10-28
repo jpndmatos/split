@@ -343,3 +343,47 @@ noscript {
     scroll-behavior: auto !important;
   }
 }
+
+/* Consistent interaction feedback without decorative motion. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}
+button:disabled {
+  transform: none;
+}
+input[aria-invalid='true'],
+textarea[aria-invalid='true'] {
+  border-bottom-color: var(--color-error);
+}
+input[type='checkbox'],
+input[type='radio'] {
+  min-width: 16px;
+  min-height: 16px;
+}
+button,
+input,
+select,
+textarea {
+  scroll-margin-block: 24px;
+}
+dialog {
+  overscroll-behavior: contain;
+}
+@media (max-width: 520px) {
+  dialog {
+    padding: 20px;
+  }
+  .form-grid {
+    gap: 12px;
+  }
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
