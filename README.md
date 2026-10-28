@@ -1,11 +1,6 @@
-<h1>
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
-    <img src="docs/logo.svg" alt="Split" width="280" height="72">
-  </picture>
-</h1>
+# Split
 
-Shared expense tracking for trips and groups. Add expenses, choose who paid, and see how much each person owes.
+A shared expense tracker for trips and groups. Add expenses as you go, split them between people, and keep track of repayments.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/dark.jpg">
