@@ -224,7 +224,7 @@ export default function App() {
         Skip to content
       </a>
       <header className="topbar">
-        <a className="brand" href="/" aria-label="Split home">
+        <a className="brand" href="./" aria-label="Split home">
           <span className="brand-icon">
             <Leaf size={24} />
           </span>
