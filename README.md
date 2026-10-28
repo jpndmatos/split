@@ -1,8 +1,22 @@
-# Split
+<h1>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.svg">
+    <img src="docs/logo.svg" alt="Split" width="280" height="72">
+  </picture>
+</h1>
 
 Shared expense tracking for trips and groups. Add expenses, choose who paid, and see how much each person owes.
 
-![Split](docs/desktop.jpg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/dark.jpg">
+  <img src="docs/desktop.jpg" alt="Split desktop interface" width="1200">
+</picture>
+
+<details>
+  <summary>Mobile view</summary>
+  <br>
+  <img src="docs/mobile.jpg" alt="Split mobile interface" width="320">
+</details>
 
 ## Features
 
@@ -35,4 +49,4 @@ npm start
 
 `npm start` serves the production build and API on port 3001. Data is stored in `data/split.db`.
 
-Built by [João Matos](https://github.com/jpndmatos). MIT license.
+Built by [João Matos](https://github.com/jpndmatos). [MIT license](LICENSE).
