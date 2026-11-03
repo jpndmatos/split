@@ -216,17 +216,23 @@ export default function App() {
       </a>
       <header className="topbar">
         <a className="brand" href="./" aria-label="Split home">
+          <svg className="brand-symbol" viewBox="0 0 32 32" aria-hidden="true">
+            <path
+              d="M5 16h8c6 0 5-9 14-9M13 16c6 0 5 9 14 9"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            />
+            <path
+              d="M23 3l4 4-4 4m0 10 4 4-4 4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+            />
+          </svg>
           Split
         </a>
         <span className="app-description">Event expenses</span>
-        <a
-          className="portfolio-link"
-          href={
-            import.meta.env.VITE_PORTFOLIO_URL || 'https://jpndmatos.github.io/Portfolio/#projects'
-          }
-        >
-          ← Portfolio
-        </a>
         <button
           className="button new-event"
           onClick={() => {

@@ -362,23 +362,89 @@ select:focus-visible {
   }
 }
 
-.portfolio-link {
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 8px 4px;
-  margin-left: auto;
-  color: var(--color-ink-2);
-  font-size: 12px;
-  white-space: nowrap;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
 .new-event {
-  margin-left: 0;
+  margin-left: auto;
 }
 @media (max-width: 480px) {
   .header-purpose {
     display: none;
+  }
+}
+
+/* Printed ledger: serif headings, ruled totals and a separate settlement sheet. */
+:root {
+  --font-body: 'Segoe UI', Arial, sans-serif;
+}
+.brand {
+  gap: 12px;
+  font-size: 40px;
+}
+.brand-symbol {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+.topbar {
+  border-bottom: 3px double var(--color-rule);
+}
+.app-description {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.summary {
+  border-top: 3px double var(--color-ink);
+  border-bottom: 1px dashed #9ba591;
+}
+.summary-main strong {
+  letter-spacing: -0.055em;
+}
+.summary-stat strong,
+.expense > strong {
+  font-variant-numeric: tabular-nums;
+}
+.new-event,
+.button.primary,
+.transfer-action .button {
+  border-radius: 3px;
+}
+.filters button {
+  border-radius: 0;
+}
+.filters button.selected {
+  box-shadow: inset 0 -2px var(--color-accent);
+  background: transparent;
+}
+.settle-panel {
+  --color-ink: #faf6eb;
+  --color-ink-2: #dce8d7;
+  --color-muted: #dce8d7;
+  --color-rule: #627e68;
+  background: #294b37;
+  color: var(--color-ink);
+  border-top: 4px double #879a7e;
+}
+.settle-panel .button {
+  background: #fff9ec;
+  color: #294b37;
+  border-color: #fff9ec;
+}
+.settle-panel .button:hover {
+  background: #e4ecd9;
+  border-color: #e4ecd9;
+}
+.settle-panel .icon-button {
+  background: transparent;
+  color: #fff9ec;
+}
+.settle-panel .payments > div {
+  border-color: #627e68;
+}
+@media (max-width: 700px) {
+  .brand {
+    font-size: 34px;
+  }
+  .brand-symbol {
+    width: 27px;
+    height: 27px;
   }
 }
