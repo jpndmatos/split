@@ -34,23 +34,14 @@ body {
     serif;
   letter-spacing: -2px;
 }
-.brand img {
-  display: none;
-}
 .app-description {
   margin: 0;
   font-size: 12px;
-}
-.event-nav {
-  display: none;
 }
 .new-event {
   margin: 0 0 0 auto;
   width: auto;
   border-radius: 100px;
-}
-.sidebar-bottom {
-  display: none;
 }
 main {
   width: 100%;

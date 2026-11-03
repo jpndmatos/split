@@ -16,9 +16,7 @@ Split shared event costs between people. Record who paid for the venue, food, su
 - Equal splits between selected people, calculated in cents.
 - Expense editing, search, event categories, and individual balances.
 - Suggested repayments with payment tracking and undo.
-- CSV export, SQLite storage, and a dedicated visual design.
-
-The desktop dashboard keeps the ledger and repayments visible together. Long lists scroll inside their panels.
+- CSV export, SQLite storage.
 
 ## Stack
 
@@ -43,11 +41,9 @@ npm start
 
 `npm start` serves the production build and API on port 3001. Data is stored in `data/split.db`.
 
-## Interface
+## Implementation notes
 
-A warm paper ledger with serif totals, editable expense rows and a separate repayment section. `npm run build:demo` creates `dist-demo`, a labelled browser demo using the same integer-cent money engine as the Node/SQLite API. Production `npm run build` still uses the server.
-
-Each repository builds independently. System fonts keep the initial view free of font downloads.
+Amounts stay in integer cents through splitting, balances and settlement calculations. The browser demo reuses the API’s calculation module; it does not send payments or write to the server. `npm run build:demo` exports it to `dist-demo`.
 
 ## Verification
 

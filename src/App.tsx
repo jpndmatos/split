@@ -53,7 +53,10 @@ function Modal({
     <dialog
       ref={ref}
       aria-label={title}
-      onCancel={close}
+      onCancel={(event) => {
+        event.preventDefault();
+        close();
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
       }}
@@ -213,14 +216,6 @@ export default function App() {
       </a>
       <header className="topbar">
         <a className="brand" href="./" aria-label="Split home">
-          <img
-            className="app-icon"
-            src={import.meta.env.BASE_URL + 'favicon.svg?v=2'}
-            width="28"
-            height="28"
-            alt=""
-            aria-hidden="true"
-          />
           Split
         </a>
         <span className="app-description">Event expenses</span>
@@ -232,18 +227,6 @@ export default function App() {
         >
           ← Portfolio
         </a>
-        <nav className="event-nav" aria-label="Events">
-          <h2>Events</h2>
-          {events.map((t) => (
-            <button
-              key={t.id}
-              aria-current={selected === t.id ? 'page' : undefined}
-              onClick={() => setSelected(t.id)}
-            >
-              {t.title}
-            </button>
-          ))}
-        </nav>
         <button
           className="button new-event"
           onClick={() => {
@@ -254,7 +237,6 @@ export default function App() {
           <Plus size={16} aria-hidden="true" />
           New event
         </button>
-        <div className="sidebar-bottom"></div>
       </header>
       <main id="main">
         {import.meta.env.MODE === 'demo' && (

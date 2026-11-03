@@ -1,4 +1,3 @@
-/* Hallmark · app colour and typography tokens · v2.0.0 */
 :root {
   --font-body: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: var(--font-body);
