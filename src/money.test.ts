@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-// @ts-expect-error Domain module is shared with the Node API.
 import { splitCents, balances, settlements } from '../server/money.mjs';
 describe('shared expenses', () => {
   it('preserves every cent in uneven splits', () => {

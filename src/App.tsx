@@ -1,7 +1,6 @@
 import { expenseCsv } from './export';
 import { Pencil, Download } from 'lucide-react';
 import { filterExpenses } from './expenses';
-import ThemeToggle from './ThemeToggle';
 import { Search } from 'lucide-react';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import {
@@ -18,30 +17,14 @@ import {
   LoaderCircle,
 } from 'lucide-react';
 
-type Member = { id: string; name: string };
-type Transfer = { id?: string; fromId: string; toId: string; cents: number };
-type Expense = {
-  id: string;
-  title: string;
-  cents: number;
-  payerId: string;
-  date: string;
-  category: string;
-  splits: { id: string; cents: number }[];
-};
-type Event = {
-  id: string;
-  title: string;
-  subtitle: string;
-  members: Member[];
-  expenses: Expense[];
-  payments: Transfer[];
-  balances: (Member & { cents: number })[];
-  settlements: Transfer[];
-};
+import type { Expense, Event } from './types';
 const euro = (cents: number) =>
   new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 async function api(path: string, method = 'GET', body?: unknown) {
+  if (import.meta.env.MODE === 'demo') {
+    const { demoApi } = await import('./demo');
+    return demoApi(path, method, body);
+  }
   const res = await fetch('/api' + path, {
     method,
     headers: body ? { 'Content-Type': 'application/json' } : undefined,
@@ -69,6 +52,7 @@ function Modal({
   return (
     <dialog
       ref={ref}
+      aria-label={title}
       onCancel={close}
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
@@ -240,6 +224,14 @@ export default function App() {
           Split
         </a>
         <span className="app-description">Event expenses</span>
+        <a
+          className="portfolio-link"
+          href={
+            import.meta.env.VITE_PORTFOLIO_URL || 'https://jpndmatos.github.io/Portfolio/#projects'
+          }
+        >
+          ← Portfolio
+        </a>
         <nav className="event-nav" aria-label="Events">
           <h2>Events</h2>
           {events.map((t) => (
@@ -262,11 +254,14 @@ export default function App() {
           <Plus size={16} aria-hidden="true" />
           New event
         </button>
-        <div className="sidebar-bottom">
-          <ThemeToggle />
-        </div>
+        <div className="sidebar-bottom"></div>
       </header>
       <main id="main">
+        {import.meta.env.MODE === 'demo' && (
+          <p className="demo-note">
+            Interactive demo · sample expenses saved in this browser. No money is transferred.
+          </p>
+        )}
         <div className="page-heading">
           <div>
             <h1>{event?.title || 'Events'}</h1>
@@ -349,6 +344,7 @@ export default function App() {
               </section>
               <div className="content-grid">
                 <section className="ledger">
+                  <h2 className="sr-only">Expense ledger</h2>
                   <div className="ledger-heading">
                     <div
                       className="tabs"
