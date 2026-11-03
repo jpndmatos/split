@@ -1,0 +1,353 @@
+html,
+body,
+#root {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+#root {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.topbar {
+  flex: none;
+  min-height: 60px;
+  max-width: none;
+  padding: 10px 24px;
+}
+.brand {
+  font-size: 32px;
+}
+.brand-symbol {
+  width: 26px;
+  height: 26px;
+}
+main {
+  flex: 1;
+  min-height: 0;
+  max-width: 1600px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 24px;
+  gap: 12px;
+}
+.demo-note {
+  flex: none;
+  margin: 0;
+  font-size: 12px;
+}
+.page-heading {
+  flex: none;
+  margin: 0;
+  align-items: center;
+  gap: 12px;
+}
+.page-heading > div:first-child {
+  flex: 1;
+}
+.page-heading h1 {
+  font-size: 30px;
+}
+.page-heading p {
+  font-size: 12px;
+  margin-top: 4px;
+}
+.summary {
+  flex: none;
+  margin: 0;
+  grid-template-columns: 1.5fr 1fr 1fr;
+}
+.summary-main,
+.summary-stat {
+  padding: 14px 16px;
+  gap: 6px;
+}
+.summary-main {
+  padding-left: 0;
+}
+.summary-main strong {
+  font-size: 42px;
+}
+.summary-stat strong {
+  font-size: 24px;
+}
+.summary .member-names {
+  max-height: 3em;
+  overflow: auto;
+}
+.summary .small-label {
+  font-size: 12px;
+  letter-spacing: 0.7px;
+}
+.content-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  gap: 20px;
+}
+.ledger {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.ledger-heading {
+  flex: none;
+  padding: 0 0 8px;
+}
+.tabs button {
+  padding-block: 10px;
+}
+.ledger > [role='tabpanel'] {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+.expense-tools {
+  flex: none;
+  padding: 12px 0;
+  gap: 8px;
+}
+.expense-search {
+  margin-bottom: 8px;
+}
+.filters {
+  gap: 4px;
+}
+.filters button {
+  padding: 6px 10px;
+}
+.ledger-columns,
+.ledger-footer {
+  flex: none;
+  padding: 8px 12px;
+}
+.expense-list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+.expense {
+  padding: 14px 12px;
+  min-height: 74px;
+}
+.expense-info p {
+  margin-top: 4px;
+}
+.balance-list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.settle-panel {
+  min-height: 0;
+  display: block;
+  overflow: auto;
+  padding: 20px;
+  overscroll-behavior: contain;
+}
+.aside-title h2 {
+  font-size: 24px;
+}
+.settle-panel > p {
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+.transfer {
+  padding-block: 16px;
+}
+.transfer-action {
+  gap: 8px;
+}
+.workspace-tabs {
+  display: none;
+}
+@media (max-width: 760px) {
+  .topbar {
+    padding: 8px 16px;
+    min-height: 56px;
+  }
+  .brand {
+    font-size: 30px;
+  }
+  .app-description {
+    display: none;
+  }
+  main {
+    padding: 12px 16px;
+    gap: 8px;
+  }
+  .demo-note {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .page-heading {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px 12px;
+  }
+  .page-heading > div:first-child {
+    grid-column: 1/-1;
+  }
+  .page-heading h1 {
+    font-size: 25px;
+  }
+  .page-heading p {
+    display: none;
+  }
+  .page-heading > .button {
+    min-height: 38px;
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+  .event-switch {
+    justify-self: end;
+  }
+  .event-switch select {
+    min-height: 38px;
+    max-width: 190px;
+    font-size: 13px;
+  }
+  .summary {
+    grid-template-columns: 1.2fr 0.7fr 1fr;
+  }
+  .summary-main {
+    grid-column: auto;
+    border: 0;
+  }
+  .summary-main,
+  .summary-stat {
+    padding: 10px 6px;
+    gap: 4px;
+  }
+  .summary-main strong {
+    font-size: 29px;
+    letter-spacing: -1px;
+  }
+  .summary-stat strong {
+    font-size: 21px;
+  }
+  .summary .small-label {
+    font-size: 12px;
+    letter-spacing: 0;
+  }
+  .summary-main > span:last-child,
+  .member-names,
+  .summary-stat > span:last-child:not(.small-label) {
+    display: none;
+  }
+  .workspace-tabs {
+    display: flex;
+    gap: 16px;
+    border-bottom: 1px solid var(--color-rule);
+    flex: none;
+  }
+  .workspace-tabs button {
+    min-height: 44px;
+    border: 0;
+    background: transparent;
+    padding: 8px 0;
+    color: var(--color-ink-2);
+    font-size: 13px;
+  }
+  .workspace-tabs button[aria-pressed='true'] {
+    color: var(--color-accent);
+    box-shadow: inset 0 -2px var(--color-accent);
+  }
+  .content-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .ledger,
+  .settle-panel {
+    flex: 1;
+    width: 100%;
+  }
+  .content-grid[data-panel='ledger'] .settle-panel,
+  .content-grid[data-panel='repayments'] .ledger {
+    display: none;
+  }
+  .ledger-heading {
+    gap: 8px;
+  }
+  .ledger-heading .button {
+    padding: 8px 12px;
+  }
+  .tabs {
+    gap: 12px;
+  }
+  .tabs button {
+    font-size: 12px;
+  }
+  .expense-tools {
+    padding: 8px 0;
+  }
+  .filters button {
+    min-height: 34px;
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  .ledger-columns {
+    padding: 6px 0;
+    font-size: 12px;
+  }
+  .expense {
+    padding: 10px 0;
+    min-height: 70px;
+  }
+  .ledger-footer {
+    padding: 8px;
+    font-size: 12px;
+  }
+}
+@media (max-height: 650px) {
+  .demo-note {
+    display: none;
+  }
+  .summary-main,
+  .summary-stat {
+    padding-block: 8px;
+  }
+  .summary-main strong {
+    font-size: 28px;
+  }
+  .summary-stat strong {
+    font-size: 22px;
+  }
+  .page-heading h1 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 760px) {
+  .filters {
+    flex-wrap: nowrap;
+    overflow: auto;
+    white-space: nowrap;
+  }
+  .filters button {
+    flex: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .summary .small-label {
+    min-height: 30px;
+    line-height: 1.25;
+  }
+}
+@media (max-height: 430px) {
+  main {
+    overflow: auto;
+  }
+  .content-grid {
+    flex: none;
+    min-height: 330px;
+  }
+}

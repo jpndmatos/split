@@ -72,6 +72,7 @@ function Modal({
   );
 }
 export default function App() {
+  const [panel, setPanel] = useState<'ledger' | 'repayments'>('ledger');
   const [events, setEvents] = useState<{ id: string; title: string }[]>([]),
     [event, setEvent] = useState<Event | null>(null),
     [selected, setSelected] = useState('');
@@ -330,7 +331,18 @@ export default function App() {
                   </span>
                 </div>
               </section>
-              <div className="content-grid">
+              <nav className="workspace-tabs" aria-label="Workspace panel">
+                <button aria-pressed={panel === 'ledger'} onClick={() => setPanel('ledger')}>
+                  Ledger
+                </button>
+                <button
+                  aria-pressed={panel === 'repayments'}
+                  onClick={() => setPanel('repayments')}
+                >
+                  Repayments
+                </button>
+              </nav>
+              <div className="content-grid" data-panel={panel}>
                 <section className="ledger">
                   <h2 className="sr-only">Expense ledger</h2>
                   <div className="ledger-heading">
@@ -412,7 +424,12 @@ export default function App() {
                         <span>Amount</span>
                         <span />
                       </div>
-                      <div className="expense-list">
+                      <div
+                        className="expense-list"
+                        tabIndex={0}
+                        role="region"
+                        aria-label="Expense list"
+                      >
                         {expenses.length ? (
                           expenses.map((e) => {
                             return (
@@ -498,6 +515,7 @@ export default function App() {
                   ) : (
                     <div
                       className="balance-list"
+                      tabIndex={0}
                       role="tabpanel"
                       id="balances-panel"
                       aria-labelledby="balances-tab"
@@ -519,7 +537,7 @@ export default function App() {
                     </div>
                   )}
                 </section>
-                <aside className="settle-panel">
+                <aside className="settle-panel" tabIndex={0} aria-label="Repayments">
                   <div className="aside-title">
                     <span className="settle-icon">
                       <ArrowUpRight size={20} />

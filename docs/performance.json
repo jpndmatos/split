@@ -1,34 +1,34 @@
 {
-  "date": "2026-11-03T19:04:14.006Z",
+  "date": "2026-11-03T21:25:21.414Z",
   "app": "split",
   "url": "http://127.0.0.1:5181/demo/split/",
   "lighthouseVersion": "12.8.2",
   "formFactor": "mobile",
   "scores": {
-    "performance": 95,
+    "performance": 96,
     "accessibility": 100,
     "best-practices": 100
   },
   "metrics": {
     "first-contentful-paint": {
-      "value": 2326.3925,
-      "display": "2.3 s"
+      "value": 2230.0024999999996,
+      "display": "2.2 s"
     },
     "largest-contentful-paint": {
-      "value": 2401.6710000000003,
-      "display": "2.4 s"
+      "value": 2305.403,
+      "display": "2.3 s"
     },
     "total-blocking-time": {
-      "value": 0,
-      "display": "0 ms"
+      "value": 11.5,
+      "display": "10 ms"
     },
     "cumulative-layout-shift": {
-      "value": 0.002663875883580231,
-      "display": "0.003"
+      "value": 0.001767192714008123,
+      "display": "0.002"
     },
     "total-byte-weight": {
-      "value": 271385,
-      "display": "Total size was 265 KiB"
+      "value": 274499,
+      "display": "Total size was 268 KiB"
     }
   }
 }
