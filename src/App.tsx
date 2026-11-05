@@ -1,4 +1,5 @@
 import { expenseCsv } from './export';
+import { splitCents } from '../server/money.mjs';
 import { Pencil, Download } from 'lucide-react';
 import { filterExpenses } from './expenses';
 import { Search } from 'lucide-react';
@@ -84,6 +85,7 @@ export default function App() {
     [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<Expense | null>(null);
+  const [expenseAmount, setExpenseAmount] = useState('');
   const [filter, setFilter] = useState('All'),
     [payer, setPayer] = useState(''),
     [participants, setParticipants] = useState<string[]>([]);
@@ -146,13 +148,10 @@ export default function App() {
   function openExpense(expense?: Expense) {
     if (!event) return;
     setEditing(expense || null);
+    setExpenseAmount(expense ? (expense.cents / 100).toFixed(2) : '');
     setPayer(expense?.payerId || event.members[0].id);
     setParticipants(
-      expense
-        ? event.members
-            .filter((member) => expense.splits.some((share) => share.id === member.id))
-            .map((member) => member.id)
-        : event.members.map((m) => m.id),
+      expense ? expense.splits.map((share) => share.id) : event.members.map((m) => m.id),
     );
     setError('');
     setModal('expense');
@@ -278,7 +277,7 @@ export default function App() {
           </button>
           <label className="event-switch">
             <span className="sr-only">Choose event</span>
-            <select value={selected} onChange={(e) => setSelected(e.target.value)}>
+            <select value={selected} disabled={busy} onChange={(e) => setSelected(e.target.value)}>
               {events.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.title}
@@ -650,7 +649,8 @@ export default function App() {
                 Amount (€)
                 <input
                   name="amount"
-                  defaultValue={editing ? (editing.cents / 100).toFixed(2) : ''}
+                  value={expenseAmount}
+                  onChange={(e) => setExpenseAmount(e.target.value)}
                   inputMode="decimal"
                   type="number"
                   min="0.01"
@@ -713,8 +713,26 @@ export default function App() {
                   </label>
                 ))}
               </div>
-              <small>Any extra cent goes to the first selected person.</small>
+              <small>Remainder cents follow the order people are selected.</small>
             </fieldset>
+            {participants.length > 0 &&
+              /^\d+(\.\d{1,2})?$/.test(expenseAmount) &&
+              Number(expenseAmount) > 0 &&
+              Number(expenseAmount) <= 1000000 && (
+                <div className="split-preview" aria-label="Share preview" role="status">
+                  <span>Each person’s share</span>
+                  <dl>
+                    {splitCents(Math.round(Number(expenseAmount) * 100), participants).map(
+                      (share) => (
+                        <div key={share.id}>
+                          <dt>{name(share.id)}</dt>
+                          <dd>{euro(share.cents)}</dd>
+                        </div>
+                      ),
+                    )}
+                  </dl>
+                </div>
+              )}
             {error && (
               <div className="error" role="alert">
                 {error}

@@ -1,13 +1,9 @@
 # Split interface
 
-Typography: Poppins, self-hosted. Weights 400, 500, and 600. Application body 16 px; controls and supporting data use 12–14 px. No tracked capitals or marketing headlines.
+A shared-expense ledger: warm paper, dark green ink, serif totals and a separate green repayment column. Keep the amount and the people involved easy to scan; transaction actions remain secondary until needed.
 
-Layout: event navigation, a transaction ledger, and a separate repayment list.
+The desktop workspace keeps totals above a scrollable ledger. On narrow screens, switch between the ledger and repayments rather than squeezing both together. Search and categories belong to the current event and reset when it changes.
 
-Colours and fonts live in src/tokens.css. Both themes have explicit foreground/background pairs, native colour schemes, and focus rings. The theme control stores an app-specific preference; system preference is used on the first visit.
+Expense entry shows the exact cent allocation before committing. Use the same `splitCents` function as the server. Preserve integer-cent arithmetic, selected participant order, payment undo, CSV export and native dialog focus. Recording a repayment never transfers money.
 
-Preserve existing fields, API routes, calculations, downloads, and keyboard controls. Avoid decorative badges, status dots, oversized introductions, slogans, and background illustrations. State indicators must communicate real application state.
-
-Material flat refinement: tonal surfaces rather than outlined containers, filled fields with a clear lower edge, neutral secondary actions, no shadows, and one primary action per task state. Keep real data and work controls prominent.
-
-Desktop work areas fit 1280x800 and 1366x768 viewports. Keep the main controls visible; contain long lists within panels. Mobile layouts use readable stacked sections.
+`tokens.css` supplies base colours; `design.css` defines the ledger identity; `dashboard.css` owns viewport and panel sizing. Body text uses Segoe UI; display figures use the existing serif family. Do not add a theme switch or portfolio navigation.

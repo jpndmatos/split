@@ -351,3 +351,57 @@ main {
     min-height: 330px;
   }
 }
+.split-preview {
+  background: var(--color-paper-3);
+  border-block: 1px solid var(--color-rule);
+  padding: 12px 14px;
+  font-size: 12px;
+}
+.split-preview > span {
+  color: var(--color-ink-2);
+}
+.split-preview dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 20px;
+  margin: 10px 0 0;
+}
+.split-preview dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.split-preview dt {
+  overflow-wrap: anywhere;
+}
+.split-preview dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.modal-head {
+  margin-bottom: 8px;
+}
+dialog {
+  max-height: calc(100dvh - 32px);
+  padding: 24px;
+}
+dialog form {
+  display: grid;
+  gap: 12px;
+}
+dialog .form-intro {
+  margin: 0 0 4px;
+}
+dialog form > label,
+dialog .form-grid > label {
+  margin: 0;
+}
+dialog form > .button.wide {
+  margin-top: 0;
+}
+dialog fieldset > small {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+}

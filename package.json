@@ -11,7 +11,8 @@
     "start": "node --experimental-sqlite server/index.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "build:demo": "tsc --noEmit && vite build --mode demo --outDir dist-demo"
+    "build:demo": "tsc --noEmit && vite build --mode demo --outDir dist-demo",
+    "test:browser": "node scripts/verify-ui.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.63.0",
@@ -26,7 +27,9 @@
     "prettier": "^3.9.10",
     "typescript": "^7.0.2",
     "vite": "^8.3.5",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "@playwright/test": "^1.56.0",
+    "@axe-core/playwright": "^4.14.0"
   },
   "engines": {
     "node": ">=22.14.0"
