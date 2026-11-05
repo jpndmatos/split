@@ -26,17 +26,17 @@ try {
     );
     await page.getByRole('button', { name: 'Add expense', exact: true }).click();
     const dialog = page.getByRole('dialog');
-    await dialog.getByLabel('Amount (â‚¬)', { exact: true }).fill('10.01');
+    await dialog.getByLabel('Amount (€)', { exact: true }).fill('10.01');
     const preview = page.getByRole('status', { name: 'Share preview' });
-    await expect(preview).toContainText('â‚¬2.51');
-    expect(await preview.getByText('â‚¬2.50', { exact: true }).count()).toBe(3);
+    await expect(preview).toContainText('€2.51');
+    expect(await preview.getByText('€2.50', { exact: true }).count()).toBe(3);
     if (width >= 1000)
       await expect(dialog.getByRole('button', { name: 'Add expense', exact: true })).toBeInViewport(
         { ratio: 1 },
       );
     await dialog.getByLabel('Sofia', { exact: true }).uncheck();
-    await expect(preview).toContainText('â‚¬3.33');
-    expect(await preview.getByText('â‚¬3.34', { exact: true }).count()).toBe(2);
+    await expect(preview).toContainText('€3.33');
+    expect(await preview.getByText('€3.34', { exact: true }).count()).toBe(2);
     const axe = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'])
       .analyze();
@@ -46,7 +46,7 @@ try {
     await dialog.getByRole('button', { name: 'Close dialog', exact: true }).click();
     expect(failures).toEqual([]);
     console.log(
-      `PASS Split ${width}Ã—${height}: real API, exact share preview, dialog and accessibility.`,
+      `PASS Split ${width}×${height}: real API, exact share preview, dialog and accessibility.`,
     );
     await context.close();
   }
