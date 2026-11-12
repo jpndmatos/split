@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { expenseCsv } from './export';
+import { expenseCsv, repaymentCsv } from './export';
 describe('expense CSV', () => {
   it('preserves exact cents, quotes names and neutralizes spreadsheet formulas', () => {
     const csv = expenseCsv(
@@ -22,4 +22,19 @@ describe('expense CSV', () => {
   it('exports a header for an empty event', () => {
     expect(expenseCsv([], []).split('\r\n')).toHaveLength(1);
   });
+});
+
+it('exports actionable repayments with exact cents and safe member names', () => {
+  const csv = repaymentCsv(
+    [{ fromId: 'a', toId: 'b', cents: 1001 }],
+    [
+      { id: 'a', name: '=Alex' },
+      { id: 'b', name: 'João, Silva' },
+    ],
+  );
+  expect(csv).toContain('"From","To","Amount (EUR)"');
+  expect(csv).toContain('"10.01"');
+  expect(csv).toContain('"João, Silva"');
+  expect(csv).toContain("'" + '=Alex');
+  expect(repaymentCsv([], []).split('\r\n')).toHaveLength(1);
 });

@@ -1,6 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { chromium, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFile } from 'node:fs/promises';
 
 const browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || undefined });
 let currentPage;
@@ -44,6 +45,14 @@ try {
       axe.violations.map((v) => ({ id: v.id, targets: v.nodes.map((n) => n.target) })),
     ).toEqual([]);
     await dialog.getByRole('button', { name: 'Close dialog', exact: true }).click();
+    if (width === 1280) {
+      await page.getByRole('tab', { name: /Balances/ }).click();
+      const pending = page.waitForEvent('download');
+      await page.getByRole('button', { name: 'Export repayments', exact: true }).click();
+      const download = await pending;
+      expect(download.suggestedFilename()).toBe('event-repayments.csv');
+      expect(await readFile(await download.path(), 'utf8')).toContain('"From","To","Amount (EUR)"');
+    }
     expect(failures).toEqual([]);
     console.log(
       `PASS Split ${width}×${height}: real API, exact share preview, dialog and accessibility.`,

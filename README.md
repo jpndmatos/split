@@ -1,10 +1,10 @@
 # Split
 
-Shared expenses, exact balances and repayment tracking. React, TypeScript, Node.js and SQLite.
+Split trip and household expenses, see who owes whom, and record repayments. Export expenses or the repayment plan as CSV. Amounts stay accurate to the cent.
 
-![Split ledger](docs/workspace.png)
+![Split workspace](docs/workspace.png)
 
-## Run
+## Setup
 
 Node.js 22.14+.
 
@@ -13,18 +13,6 @@ npm ci
 npm run dev
 ```
 
-Open http://localhost:5174. The first run creates a sample event.
+Open http://localhost:5174. A sample event is ready on first run; data is stored in `data/split.db`. Repayments are records, not money transfers.
 
-## Build and check
-
-```sh
-npm test
-npm run build
-npm start
-```
-
-Production: http://localhost:3001. Data: `data/split.db`.
-
-`npm run test:browser` checks the running app using an isolated, seeded database. Install Chromium with `npx playwright install chromium` first.
-
-Amounts use integer cents. Repayments are records; the app does not transfer money.
+React · TypeScript · Node.js · SQLite. [Development notes](docs/development.md).

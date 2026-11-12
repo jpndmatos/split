@@ -1,4 +1,4 @@
-import { expenseCsv } from './export';
+import { expenseCsv, repaymentCsv } from './export';
 import { splitCents } from '../server/money.mjs';
 import { Pencil, Download } from 'lucide-react';
 import { filterExpenses } from './expenses';
@@ -257,23 +257,32 @@ export default function App() {
           </div>
           <button
             className="button"
-            disabled={!event?.expenses.length}
+            disabled={
+              !event || (view === 'expenses' ? !event.expenses.length : !event.settlements.length)
+            }
             onClick={() => {
               if (!event) return;
               const url = URL.createObjectURL(
-                new Blob([expenseCsv(event.expenses, event.members)], {
-                  type: 'text/csv;charset=utf-8',
-                }),
+                new Blob(
+                  [
+                    view === 'balances'
+                      ? repaymentCsv(event.settlements, event.members)
+                      : expenseCsv(event.expenses, event.members),
+                  ],
+                  {
+                    type: 'text/csv;charset=utf-8',
+                  },
+                ),
               );
               const link = document.createElement('a');
               link.href = url;
-              link.download = 'event-expenses.csv';
+              link.download = view === 'balances' ? 'event-repayments.csv' : 'event-expenses.csv';
               link.click();
               setTimeout(() => URL.revokeObjectURL(url), 1000);
             }}
           >
             <Download size={16} aria-hidden="true" />
-            Export CSV
+            {view === 'balances' ? 'Export repayments' : 'Export CSV'}
           </button>
           <label className="event-switch">
             <span className="sr-only">Choose event</span>
