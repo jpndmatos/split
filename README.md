@@ -14,5 +14,3 @@ npm run dev
 ```
 
 Open http://localhost:5174. A sample event is ready on first run; data is stored in `data/split.db`. Repayments are records, not money transfers.
-
-React · TypeScript · Node.js · SQLite. [Development notes](docs/development.md).
